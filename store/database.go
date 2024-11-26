@@ -80,3 +80,21 @@ func (db *Databse) GetProfile(id int)(models.Profile, error){
 	}
 	return profile, nil
 }
+
+// Update profile by id
+
+func (db *Database) UpdateProfile(id int, updated models.Profile)(models.Profile, error){
+	_, err := db.conn.Exec(" UPDATE profiles SET name = ?, email = ? where ID = ?",updated.name, updated.email, id)
+	if err != nil{
+		return models.Profile{}, err
+	}
+
+	return db.GetProfile(id)
+}
+
+//delete profile by id
+
+func (db *Database) DeleteProfile(id INT) error{
+	_, err = db.conn.Exec("DELETE FROM profiles WHERE ID = ?", id)
+	return err
+}
