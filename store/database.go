@@ -67,3 +67,16 @@ func (db *Database) GetProfiles()([]models.Profile, error){
 	}
 	return profiles, nil
 }
+
+//get profile by id
+
+func (db *Databse) GetProfile(id int)(models.Profile, error){
+	var profile Models.Profile
+	err := db.conn.QueryRow("SELECT id, name, email from profiles where id = ?", id).Scan(&profile.ID, &profile.Name, &profile.Email)
+	if err == sql.ErrNoRows{
+		return models.Profile{}, nil
+	} else if err != nil{
+		return models.Profile{}, err
+	}
+	return profile, nil
+}
