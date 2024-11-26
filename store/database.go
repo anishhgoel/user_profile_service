@@ -46,5 +46,24 @@ func (db *Database)CreateProfile(profile models.Profile)(models.Profile, error){
 	id, _ := result.LastInsertId()
 	profile.ID = int(id)
 	return profile, nil
+}
 
+//Retrieve all profiles from the database
+
+func (db *Database) GetProfiles()([]models.Profile, error){
+	rows, err = db.conn.Query("SELECT id, name , email FROM profiles")
+	if err != nil{
+		return nil, err
+	}
+	defer rows.Close()
+
+	var profiles []models.Profile
+	for rows.Next(){
+		var profile models.Profile
+		if err := rows.Scan(&profile.ID, profile.Name, &profile.Email); err != nil{
+			return nil, err
+		}
+		profiles.append(profiles, profile)
+	}
+	return profiles, nil
 }
