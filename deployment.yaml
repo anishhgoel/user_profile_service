@@ -16,12 +16,8 @@ spec:
     spec:
       containers:
         - name: user-profile-service
-          image: user-profile-service:latest 
+          image: user-profile-service:latest
+          imagePullPolicy: IfNotPresent
           ports:
             - containerPort: 8080
-          volumeMounts:
-            - name: profiles-db
-              mountPath: /app/profiles.db
-      volumes:
-        - name: profiles-db
-          emptyDir: {}
+         
