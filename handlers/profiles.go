@@ -59,3 +59,38 @@ func GetProfileHandler(w http.ResponseWriter, r *http.Request) {
 	}
 	json.NewEncoder(w).Encode(profile)
 }
+
+func UpdateProfileHandler(w http.ResponseWriter, r *http.Request) {
+	id, err := strconv.Atoi(r.URL.Path[len("/profiles"):])
+	if err != nil {
+		http.Error(w, "invalid ID", http.StatusBadRequest)
+		return
+	}
+
+	var updatedProfile models.Profile
+	if err := json.NewDecoder(r.Body).Decode(&updatedProfile); err != nil {
+		http.Error(w, "Invlaid JSON", http.StatusBadRequest)
+		return
+	}
+
+	profile, err := db.UpdateProfile(id, updatedProfile)
+	if err != nil {
+		http.Error(w, "Failed to update profile", http.StatusInternalServerError)
+		return
+	}
+	json.NewEncoder(w).Encode(profile)
+
+}
+
+func DeleteProfileHandler(w http.ResponseWriter, r *http.Request) {
+	id, err := strconv.Atoi(r.URL.Path[len("/profiles"):])
+	if err != nil {
+		http.Error(w, "Invalid ID", http.StatusBadRequest)
+		return
+	}
+	if err := db.DeleteProfile(id); err != nil {
+		http.Error(w, "Failed to delete profile", http.StatusInternalServerError)
+		return
+	}
+	w.WriteHeader(http.StatusNoContent)
+}
