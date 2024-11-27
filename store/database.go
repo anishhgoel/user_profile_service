@@ -1,21 +1,20 @@
-"database operations(CRUD)"
-
 package store
 
-import(
+import (
 	"database/sql"
 	"log"
 	"user-profile-service/models"
+
 	_ "github.com/mattn/go-sqlite3"
 )
 
-type Database struct{
+type Database struct {
 	conn *sql.DB
 }
 
-func NewDataBase(dsn string) *Database{
+func NewDataBase(dsn string) *Database {
 	conn, err := sql.Open("sqlite3", dsn)
-	if err != nil{
+	if err != nil {
 		log.Fatalf("Failed to connect to database :%v", err)
 	}
 
@@ -25,21 +24,21 @@ func NewDataBase(dsn string) *Database{
 	name TEXT NOT NULL,
 	email TEXT NOT NULL UNIQUE);
 	`)
-	if err != nil{
-		log.Fatalf("Failed to run migrations: %v",err)
+	if err != nil {
+		log.Fatalf("Failed to run migrations: %v", err)
 	}
 	return &Database{conn: conn}
 }
 
-func (db *Database) Close(){
+func (db *Database) Close() {
 	db.conn.Close()
 }
 
 //creating profile to insert into database
 
-func (db *Database)CreateProfile(profile models.Profile)(models.Profile, error){
-	result,err := db.conn.Exec("INSERT INTO profiles (name, email) VALUES(? , ?)", profile.Name, profile.Email)
-	if err != nil{
+func (db *Database) CreateProfile(profile models.Profile) (models.Profile, error) {
+	result, err := db.conn.Exec("INSERT INTO profiles (name, email) VALUES(? , ?)", profile.Name, profile.Email)
+	if err != nil {
 		return models.Profile{}, err
 	}
 
@@ -50,32 +49,32 @@ func (db *Database)CreateProfile(profile models.Profile)(models.Profile, error){
 
 //Retrieve all profiles from the database
 
-func (db *Database) GetProfiles()([]models.Profile, error){
-	rows, err = db.conn.Query("SELECT id, name , email FROM profiles")
-	if err != nil{
+func (db *Database) GetProfiles() ([]models.Profile, error) {
+	rows, err := db.conn.Query("SELECT id, name , email FROM profiles")
+	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
 
 	var profiles []models.Profile
-	for rows.Next(){
+	for rows.Next() {
 		var profile models.Profile
-		if err := rows.Scan(&profile.ID, profile.Name, &profile.Email); err != nil{
+		if err := rows.Scan(&profile.ID, profile.Name, &profile.Email); err != nil {
 			return nil, err
 		}
-		profiles.append(profiles, profile)
+		profiles = append(profiles, profile)
 	}
 	return profiles, nil
 }
 
 //get profile by id
 
-func (db *Databse) GetProfile(id int)(models.Profile, error){
-	var profile Models.Profile
+func (db *Database) GetProfile(id int) (models.Profile, error) {
+	var profile models.Profile
 	err := db.conn.QueryRow("SELECT id, name, email from profiles where id = ?", id).Scan(&profile.ID, &profile.Name, &profile.Email)
-	if err == sql.ErrNoRows{
+	if err == sql.ErrNoRows {
 		return models.Profile{}, nil
-	} else if err != nil{
+	} else if err != nil {
 		return models.Profile{}, err
 	}
 	return profile, nil
@@ -83,9 +82,9 @@ func (db *Databse) GetProfile(id int)(models.Profile, error){
 
 // Update profile by id
 
-func (db *Database) UpdateProfile(id int, updated models.Profile)(models.Profile, error){
-	_, err := db.conn.Exec(" UPDATE profiles SET name = ?, email = ? where ID = ?",updated.name, updated.email, id)
-	if err != nil{
+func (db *Database) UpdateProfile(id int, updated models.Profile) (models.Profile, error) {
+	_, err := db.conn.Exec(" UPDATE profiles SET name = ?, email = ? where ID = ?", updated.Name, updated.Email, id)
+	if err != nil {
 		return models.Profile{}, err
 	}
 
@@ -94,7 +93,7 @@ func (db *Database) UpdateProfile(id int, updated models.Profile)(models.Profile
 
 //delete profile by id
 
-func (db *Database) DeleteProfile(id INT) error{
-	_, err = db.conn.Exec("DELETE FROM profiles WHERE ID = ?", id)
+func (db *Database) DeleteProfile(id int) error {
+	_, err := db.conn.Exec("DELETE FROM profiles WHERE ID = ?", id)
 	return err
 }
