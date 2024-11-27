@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"encoding/json"
+	"log"
 	"net/http"
 	"strconv"
 	"user-profile-service/models"
@@ -24,6 +25,7 @@ func CreateProfileHandler(w http.ResponseWriter, r *http.Request) {
 	}
 	createdProfile, err := db.CreateProfile(profile)
 	if err != nil {
+		log.Printf("Error creating profile: %v", err)
 		http.Error(w, "Failed to creage profile", http.StatusInternalServerError)
 		return
 	}
