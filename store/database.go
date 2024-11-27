@@ -2,6 +2,7 @@ package store
 
 import (
 	"database/sql"
+	"fmt"
 	"log"
 	"user-profile-service/models"
 
@@ -31,7 +32,9 @@ func NewDataBase(dsn string) *Database {
 }
 
 func (db *Database) Close() {
-	db.conn.Close()
+	if err := db.conn.Close(); err != nil {
+		log.Printf("Error closing database connection: %v", err)
+	}
 }
 
 //creating profile to insert into database
@@ -59,7 +62,7 @@ func (db *Database) GetProfiles() ([]models.Profile, error) {
 	var profiles []models.Profile
 	for rows.Next() {
 		var profile models.Profile
-		if err := rows.Scan(&profile.ID, profile.Name, &profile.Email); err != nil {
+		if err := rows.Scan(&profile.ID, &profile.Name, &profile.Email); err != nil {
 			return nil, err
 		}
 		profiles = append(profiles, profile)
@@ -73,7 +76,7 @@ func (db *Database) GetProfile(id int) (models.Profile, error) {
 	var profile models.Profile
 	err := db.conn.QueryRow("SELECT id, name, email from profiles where id = ?", id).Scan(&profile.ID, &profile.Name, &profile.Email)
 	if err == sql.ErrNoRows {
-		return models.Profile{}, nil
+		return models.Profile{}, fmt.Errorf("profile not found")
 	} else if err != nil {
 		return models.Profile{}, err
 	}

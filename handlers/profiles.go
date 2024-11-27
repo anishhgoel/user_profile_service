@@ -28,6 +28,7 @@ func CreateProfileHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	w.WriteHeader(http.StatusCreated)
+	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(createdProfile)
 }
 
@@ -37,7 +38,9 @@ func GetProfilesHandler(w http.ResponseWriter, r *http.Request) {
 	profiles, err := db.GetProfiles()
 	if err != nil {
 		http.Error(w, "Failed to retrieve profiles", http.StatusInternalServerError)
+		return
 	}
+	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(profiles)
 }
 
@@ -57,11 +60,12 @@ func GetProfileHandler(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Profile not found", http.StatusNotFound)
 		return
 	}
+	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(profile)
 }
 
 func UpdateProfileHandler(w http.ResponseWriter, r *http.Request) {
-	id, err := strconv.Atoi(r.URL.Path[len("/profiles"):])
+	id, err := strconv.Atoi(r.URL.Path[len("/profiles/"):])
 	if err != nil {
 		http.Error(w, "invalid ID", http.StatusBadRequest)
 		return
@@ -78,12 +82,13 @@ func UpdateProfileHandler(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Failed to update profile", http.StatusInternalServerError)
 		return
 	}
+	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(profile)
 
 }
 
 func DeleteProfileHandler(w http.ResponseWriter, r *http.Request) {
-	id, err := strconv.Atoi(r.URL.Path[len("/profiles"):])
+	id, err := strconv.Atoi(r.URL.Path[len("/profiles/"):])
 	if err != nil {
 		http.Error(w, "Invalid ID", http.StatusBadRequest)
 		return
